@@ -124,7 +124,7 @@ window.ATLAS = (function () {
             ] },
           { id: "hannahmap", label: "Hannah's Lucidchart mind map", s: "U", o: ["Hannah"], due: "Before Nov 20", ts: 2919,
             what: "Hannah planned to map things out after taking it to the group, then share her Lucidchart." },
-          { id: "media", label: "Photos and video package", s: "U", o: ["Hannah", "Julie"], due: "Proposed: Jan 2027", ts: 497,
+          { id: "mediapkg", label: "Photos and video package", s: "U", o: ["Hannah", "Julie"], due: "Proposed: Jan 2027", ts: 497,
             what: "Captions, photo credits and consent for every image and video.",
             kids: [
               { id: "media1", label: "Captions and credits", s: "U" },

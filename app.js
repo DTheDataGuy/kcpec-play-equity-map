@@ -33,6 +33,7 @@
   function showView(v) {
     tabs.forEach((t) => t.setAttribute("aria-selected", String(t.dataset.view === v)));
     document.querySelectorAll(".view").forEach((s) => s.classList.toggle("is-active", s.dataset.view === v));
+    if (v !== "map") drawer.classList.remove("open");
     if (v === "map") requestAnimationFrame(() => { if (!fitted) fit(false); });
     if (v === "flow") drawFlow();
   }
@@ -46,7 +47,7 @@
 
   // ---------- Filters state ----------
   const state = { q: "", status: new Set(), person: null, sel: null };
-  const expanded = new Set(branches.map((b) => b.id));
+  const expanded = new Set(window.innerWidth < 860 ? [] : branches.map((b) => b.id));
 
   // Stats strip
   const counts = { U: 0, X: 0, D: 0, C: 0 };
@@ -104,13 +105,18 @@
   document.getElementById("zin").onclick = () => svg.transition().duration(250).call(zoom.scaleBy, 1.3);
   document.getElementById("zout").onclick = () => svg.transition().duration(250).call(zoom.scaleBy, 1 / 1.3);
 
-  const ctx = document.createElement("canvas").getContext("2d");
-  const FONTS = { 1: "800 16px 'Cabinet Grotesk'", 2: "600 13.5px Satoshi", 3: "500 12.5px Satoshi" };
-  function tw(text, depth) { ctx.font = FONTS[depth]; return ctx.measureText(text).width; }
+  const measG = svg.append("g").attr("class", "measure").style("visibility", "hidden");
+  const twCache = new Map();
+  function tw(text, depth) {
+    const key = depth + "|" + text; if (twCache.has(key)) return twCache.get(key);
+    const g = measG.append("g").attr("class", "node " + (depth === 1 ? "branch" : depth === 2 ? "item" : "leaf"));
+    const w = g.append("text").text(text).node().getComputedTextLength(); g.remove();
+    twCache.set(key, w); return w;
+  }
   const PAD = { 1: 18, 2: 14, 3: 10 };
   const RH = { 1: 50, 2: 38, 3: 28 };
   const GAP = { 1: 30, 2: 8, 3: 2 };
-  const ROOT_W = 300, ROOT_H = 92;
+  const ROOT_W = 330, ROOT_H = 92;
 
   function visKids(n) { return n.kids && expanded.has(n.id) ? n.kids : []; }
   let layoutNodes = [], layoutLinks = [];
@@ -221,7 +227,7 @@
     if (d.depth === 0 || !d.kids || !d.kids.length) return;
     const p = pos.get(d.id);
     const open = expanded.has(d.id);
-    const bx = p.dir * (p.w + 2);
+    const bx = p.dir * (p.w + (open ? 6 : 12));
     const b = g.append("g").attr("class", "badge").attr("transform", `translate(${bx},0)`);
     b.append("circle").attr("r", open ? 6 : 10).attr("fill", open ? "#fff" : d.branch.color).attr("stroke", open ? d.branch.color : "#fff").attr("stroke-width", open ? 2 : 1.5);
     if (!open) b.append("text").text(d.kids.length);
@@ -246,15 +252,20 @@
     }
     render(true);
     renderBoard();
+    if (fromFilter) setTimeout(() => {
+      const vis = new Set(layoutNodes.map((n) => n.id));
+      const hits = filtering() ? layoutNodes.filter((n) => matches(n) && vis.has(n.id)) : null;
+      if (!hits || hits.length) fit(true, hits && hits.length ? hits.concat([A.tree]) : null, 1.1);
+    }, 400);
   }
 
-  function fit(animate) {
+  function fit(animate, subset, maxK) {
     const r = canvasEl.getBoundingClientRect();
     if (!r.width || !r.height) return;
     let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
-    layoutNodes.forEach((n) => { const p = pos.get(n.id); const a = n.depth === 0 ? -ROOT_W / 2 : p.dir > 0 ? p.x : p.x - p.w; const b = n.depth === 0 ? ROOT_W / 2 : p.dir > 0 ? p.x + p.w + 14 : p.x - 14; x0 = Math.min(x0, a, b); x1 = Math.max(x1, a, b); y0 = Math.min(y0, p.y - 26); y1 = Math.max(y1, p.y + 26); });
+    (subset || layoutNodes).forEach((n) => { const p = pos.get(n.id); const a = n.depth === 0 ? -ROOT_W / 2 : p.dir > 0 ? p.x : p.x - p.w; const b = n.depth === 0 ? ROOT_W / 2 : p.dir > 0 ? p.x + p.w + 14 : p.x - 14; x0 = Math.min(x0, a, b); x1 = Math.max(x1, a, b); y0 = Math.min(y0, p.y - 26); y1 = Math.max(y1, p.y + 26); });
     const pad = 30;
-    const k = Math.min(1.1, (r.width - pad * 2) / (x1 - x0), (r.height - pad * 2) / (y1 - y0));
+    const k = Math.min(maxK || 1.1, (r.width - pad * 2) / (x1 - x0), (r.height - pad * 2) / (y1 - y0));
     const tx = r.width / 2 - k * (x0 + x1) / 2, ty = r.height / 2 - k * (y0 + y1) / 2;
     const tr = d3.zoomIdentity.translate(tx, ty).scale(k);
     (animate ? svg.transition().duration(450) : svg).call(zoom.transform, tr);
@@ -279,6 +290,11 @@
     }
     select(d.id, false);
     render(true);
+    if (d.depth === 1 && expanded.has(d.id)) setTimeout(() => fitBranch(d), 400);
+  }
+  function fitBranch(b) {
+    const sub = []; const walk = (n) => { sub.push(n); visKids(n).forEach(walk); }; walk(b);
+    fit(true, sub, 1.25);
   }
 
   document.getElementById("expandAll").onclick = () => { byId.forEach((n) => { if (n.kids && n.depth > 0) expanded.add(n.id); }); render(true); setTimeout(() => fit(true), 400); };
@@ -349,7 +365,10 @@
       { k: "D", title: "The Data Guys delivers", groupBy: false },
     ];
     board.innerHTML = cols.map((col) => {
-      const list = items.filter((n) => n.s === col.k && (!boardPerson || n.eo.includes(boardPerson)));
+      const seen = new Set();
+      const list = items.filter((n) => n.s === col.k && (!boardPerson || n.eo.includes(boardPerson)))
+        .sort((a, b) => (b.branch.id === "dei") - (a.branch.id === "dei"))
+        .filter((n) => { const key = n.label.toLowerCase(); if (seen.has(key)) return false; seen.add(key); return true; });
       let body = "";
       if (col.groupBy) {
         const groups = new Map();
@@ -422,8 +441,11 @@
       .on("focus", (e, p) => trace(p.n.id)).on("blur", () => { if (!locked) trace(null); });
   }
 
+  const ft = document.getElementById("filtToggle");
+  ft.onclick = () => { const c = document.querySelector(".controls"); const on = !c.classList.contains("show"); c.classList.toggle("show", on); ft.setAttribute("aria-expanded", String(on)); ft.textContent = on ? "Hide filters" : "Filters and controls"; };
   // ---------- Init ----------
   window.addEventListener("resize", () => { if (document.querySelector(".view-map.is-active")) fit(false); });
   const go = () => { render(false); renderBoard(); };
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(go); else go();
+  const fl = document.fonts ? Promise.all(["800 16px 'Cabinet Grotesk'", "600 13.5px Satoshi", "500 12.5px Satoshi", "700 14px Satoshi"].map((f) => document.fonts.load(f))).catch(() => {}) : Promise.resolve();
+  Promise.race([fl, new Promise((r) => setTimeout(r, 2500))]).then(go);
 })();
