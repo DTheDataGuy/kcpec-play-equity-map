@@ -200,7 +200,8 @@ window.ATLAS = (function () {
         what: "How the report is organized and how that turns into pages on the site.",
         kids: [
           { id: "domains", label: "8 Play Equity domains", s: "C", ts: 2945,
-            what: "Likely the framework for the report. Julie noted they don't need to be the website's navigation.",
+            what: "Likely the framework for the report: neighborhood, organized sport, family, policy, school, socio-cultural, early childhood and public health. Julie noted they don't need to be the website's navigation. See the 8 Domains tab for sources and tracking.",
+            why: "Play equity is broader than sports. The report looks across all eight to explain disparities in access to play and physical activity.",
             kids: [
               { id: "d1", label: "Neighborhood", s: "C" }, { id: "d2", label: "Organized sport", s: "C" },
               { id: "d3", label: "Family", s: "C" }, { id: "d4", label: "Policy", s: "C" },
@@ -221,6 +222,10 @@ window.ATLAS = (function () {
             ] },
           { id: "seq", label: "Report structure first, then digital", s: "C", ts: 962,
             what: "UW sets the report structure first. Dei uses it to design the web layout and the overflow." },
+          { id: "domfit", label: "Confirm which data feeds each domain", s: "U", o: ["Julie"], due: "Nov 20 check-in", ts: 2945,
+            what: "The 8 Domains tab has Dei's first pass at which source supports which domain. Julie confirms or corrects it.",
+            why: "This decides the chart inventory, the codebook asks for Jack and where each domain lives online.",
+            next: "Julie marks up the domain grid before or at the Nov 20 check-in." },
           { id: "map2page", label: "Map each domain to pages and views", s: "D", o: ["Dei"],
             what: "Show where each domain's findings appear: report page, dashboard view, story or library item." },
           { id: "storytelling", label: "Interactive storytelling ideas", s: "D", o: ["Dei"], ts: 1303,
@@ -341,6 +346,71 @@ window.ATLAS = (function () {
     { date: "Late Mar / Apr", label: "Community launch", phase: "launch" },
   ];
 
+
+  // 8 Play Equity domains (Julie, Nov 13 recording 49:05). Source fit marked "y" = Julie said so on the call,
+  // "l" = Dei's working draft for Julie to confirm. Nothing here is final until Julie confirms.
+  const SOURCES = [
+    { id: "parent", label: "Parent survey", owner: "Jack" },
+    { id: "youth", label: "Youth Action Mapping", owner: "Matt" },
+    { id: "program", label: "Program survey", owner: "Jack" },
+    { id: "interviews", label: "Program leader interviews", owner: "Julie" },
+    { id: "focus", label: "Focus groups and youth survey", owner: "Julie" },
+    { id: "stories", label: "CAB and student stories", owner: "Julie" },
+    { id: "baseline", label: "2019 State of Play", owner: "Julie" },
+  ];
+  const DOMAINS = [
+    { n: 1, id: "neighborhood", label: "Neighborhood", color: "#2E8B6E", ts: 2945,
+      said: "Neighborhood-based free play: how the neighborhood supports the conditions for play.",
+      fit: { youth: "y", parent: "l", focus: "l" },
+      web: ["Youth Action Mapping page", "Data explorer"],
+      ask: "Will Matt's maps show this domain on their own, or alongside parent survey results by region?" },
+    { n: 2, id: "organized", label: "Organized sport", color: "#1F6F8B", ts: 2945,
+      said: "The structured side: programs, fields, coaches and safety policies.",
+      fit: { program: "y", interviews: "l", parent: "l" },
+      web: ["Program insights", "Data explorer"],
+      ask: "Program survey closes early December. Is it ready in time for this chapter?" },
+    { n: 3, id: "family", label: "Family", color: "#7A5C12",
+      said: "Not described on the call yet.",
+      fit: { parent: "l", focus: "l" },
+      web: ["Data explorer", "Report chapter"],
+      ask: "Which parent survey questions speak to family?" },
+    { n: 4, id: "policy", label: "Policy", color: "#4F5D9A",
+      said: "Not described on the call yet. The program survey was built partly to show policymakers what programs need.",
+      fit: { program: "l", interviews: "l" },
+      web: ["Program insights", "Report chapter"],
+      ask: "Is this about public policy, organizational policy (like background checks), or both?" },
+    { n: 5, id: "school", label: "School", color: "#B8641F",
+      said: "Not described on the call yet.",
+      fit: { parent: "l", focus: "l" },
+      web: ["Report chapter", "Data explorer"],
+      ask: "Is there school-specific data, or does this come from the surveys?" },
+    { n: 6, id: "sociocultural", label: "Socio-cultural", color: "#9A4A2E", ts: 2945,
+      said: "Why there are gender disparities, and other cultural factors in who gets to play.",
+      fit: { parent: "l", focus: "l", stories: "l" },
+      web: ["Stories: CAB and students", "Data explorer"],
+      ask: "Which filters matter most here (gender, race, income), and what's the small-cell threshold?" },
+    { n: 7, id: "early", label: "Early childhood", color: "#0E7C86",
+      said: "Not described on the call yet.",
+      fit: { parent: "l" },
+      web: ["Report chapter"],
+      ask: "Is there a data source for young children, or is this a gap to name in the report?" },
+    { n: 8, id: "health", label: "Public health", color: "#002C4A",
+      said: "Not described on the call yet.",
+      fit: { baseline: "l", parent: "l" },
+      web: ["Report chapter", "Data explorer"],
+      ask: "Which health measures, and do any compare to the 2019 baseline?" },
+  ];
+  // Per-domain tracking steps, in the order content moves from UW to the site.
+  const STEPS = [
+    { id: "text", label: "Section text", who: "Julie" },
+    { id: "charts", label: "Chart keys", who: "Julie" },
+    { id: "data", label: "Data and codebook", who: "Jack" },
+    { id: "quotes", label: "Quotes and highlights", who: "Julie" },
+    { id: "photos", label: "Photos", who: "Photo lead" },
+    { id: "web", label: "Web home set", who: "Dei" },
+    { id: "built", label: "Designed and built", who: "Dei" },
+  ];
+
   // How it connects: inputs -> work -> outputs
   const FLOW = {
     inputs: [
@@ -378,5 +448,5 @@ window.ATLAS = (function () {
     ],
   };
 
-  return { FATHOM, STATUS, PEOPLE, tree, TIMELINE, FLOW };
+  return { FATHOM, STATUS, PEOPLE, tree, TIMELINE, FLOW, SOURCES, DOMAINS, STEPS };
 })();

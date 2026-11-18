@@ -24,6 +24,7 @@
   </div>
   <nav class="tabs" role="tablist" aria-label="Views">
     <button role="tab" class="tab" aria-selected="true" data-view="map" data-testid="tab-map"><span class="lg">Mind map</span><span class="sm">Map</span></button>
+    <button role="tab" class="tab" aria-selected="false" data-view="domains" data-testid="tab-domains"><span class="lg">8 Domains</span><span class="sm">Domains</span></button>
     <button role="tab" class="tab" aria-selected="false" data-view="list" data-testid="tab-list"><span class="lg">Who owes what</span><span class="sm">Who owes</span></button>
     <button role="tab" class="tab" aria-selected="false" data-view="time" data-testid="tab-time"><span class="lg">Timeline</span><span class="sm">Timeline</span></button>
     <button role="tab" class="tab" aria-selected="false" data-view="flow" data-testid="tab-flow"><span class="lg">How it connects</span><span class="sm">Connects</span></button>
@@ -72,6 +73,34 @@
         </div>
         <div class="drawer-body" id="drawerBody" hidden></div>
       </aside>
+    </div>
+  </section>
+
+  <!-- DOMAINS -->
+  <section class="view view-domains" data-view="domains" aria-label="The 8 Play Equity domains">
+    <div class="list-head">
+      <div>
+        <p class="eyebrow">Report framework</p>
+        <h2>The 8 Play Equity domains</h2>
+        <p class="lede">Julie shared these as the likely framework for the report. Each one shows what feeds it, where it could live online, what we still need to ask, and how far along it is. Source fits marked Draft are my first pass for Julie to confirm.</p>
+      </div>
+      <a class="btn" href="https://fathom.video/share/L-xnD8_cHsLjyM-TpUYsMqHWDdXCUkTz?timestamp=2945" target="_blank" rel="noopener" data-testid="link-domains-clip">▶ Hear Julie at 49:05</a>
+    </div>
+    <div class="dom-grid" id="domGrid"></div>
+    <div class="dom-block">
+      <div class="dom-block-h">
+        <h3>Which data feeds which domain</h3>
+        <div class="dom-legend"><span><i class="fit y"></i>Julie said so</span><span><i class="fit l"></i>Draft, to confirm</span></div>
+      </div>
+      <div class="mx-scroll"><table class="mx" id="domMatrix"></table></div>
+    </div>
+    <div class="dom-block">
+      <div class="dom-block-h">
+        <h3>Domain tracker</h3>
+        <p class="dom-note">Tap a cell to move it from Not started to In progress to Done. Changes save in this browser only.</p>
+      </div>
+      <div class="mx-scroll"><table class="mx trk" id="domTracker"></table></div>
+      <div class="dom-legend trk-legend"><span><i class="st s0"></i>Not started</span><span><i class="st s1"></i>In progress</span><span><i class="st s2"></i>Done</span><button class="btn" id="trkReset" data-testid="button-tracker-reset">Reset</button></div>
     </div>
   </section>
 

@@ -393,6 +393,45 @@
   }
   board.addEventListener("keydown", (e) => { const c = e.target.closest(".card"); if (c && (e.key === "Enter" || e.key === " ")) { e.preventDefault(); c.click(); } });
 
+
+  // ---------- 8 Domains ----------
+  const DKEY = "kcpec-domain-tracker-v1";
+  let trk = {};
+  try { trk = JSON.parse(localStorage.getItem(DKEY) || "{}"); } catch (e) { trk = {}; }
+  const saveTrk = () => { try { localStorage.setItem(DKEY, JSON.stringify(trk)); } catch (e) {} };
+  const stLabel = ["Not started", "In progress", "Done"];
+  const srcById = Object.fromEntries(A.SOURCES.map((x) => [x.id, x]));
+  function domPct(d) { const tot = A.STEPS.length * 2; let v = 0; A.STEPS.forEach((st) => { v += trk[d.id + ":" + st.id] || 0; }); return Math.round((v / tot) * 100); }
+  function ring(pct, color) {
+    const r = 20, c = 2 * Math.PI * r, off = c * (1 - pct / 100);
+    return `<svg class="ring" viewBox="0 0 48 48" aria-hidden="true"><circle cx="24" cy="24" r="${r}" fill="none" stroke="#e8e2d4" stroke-width="5"/><circle cx="24" cy="24" r="${r}" fill="none" stroke="${color}" stroke-width="5" stroke-linecap="round" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}" transform="rotate(-90 24 24)"/><text x="24" y="28" text-anchor="middle">${pct}%</text></svg>`;
+  }
+  function renderDomains() {
+    document.getElementById("domGrid").innerHTML = A.DOMAINS.map((d) => {
+      const srcs = Object.entries(d.fit).sort((a, b) => (a[1] === "y" ? -1 : 1) - (b[1] === "y" ? -1 : 1));
+      const pct = domPct(d);
+      return `<article class="dom" style="--dc:${d.color}" data-testid="domain-${d.id}">
+        <header class="dom-h"><span class="dom-n">${d.n}</span><h3>${esc(d.label)}</h3>${ring(pct, d.color)}</header>
+        <p class="dom-said ${d.ts ? "" : "tbd"}">${esc(d.said)}${d.ts ? ` <a href="${fathom(d.ts)}" target="_blank" rel="noopener">▶ ${mmss(d.ts)}</a>` : ""}</p>
+        <p class="dom-k">Fed by</p>
+        <div class="dom-chips">${srcs.map(([k, v]) => `<span class="sc ${v}" title="${v === "y" ? "Julie said so" : "Draft, to confirm"}">${esc(srcById[k].label)}<em>${esc(firstName(srcById[k].owner))}</em></span>`).join("")}</div>
+        <p class="dom-k">Could live online in</p>
+        <div class="dom-chips">${d.web.map((w) => `<span class="wc">${esc(w)}</span>`).join("")}</div>
+        <div class="dom-ask"><span>Ask Julie</span>${esc(d.ask)}</div>
+      </article>`;
+    }).join("");
+    const mx = document.getElementById("domMatrix");
+    mx.innerHTML = `<thead><tr><th scope="col">Domain</th>${A.SOURCES.map((x) => `<th scope="col"><span>${esc(x.label)}</span><small>${esc(firstName(x.owner))}</small></th>`).join("")}</tr></thead><tbody>${A.DOMAINS.map((d) => `<tr><th scope="row"><i class="dot" style="background:${d.color}"></i>${esc(d.label)}</th>${A.SOURCES.map((x) => { const v = d.fit[x.id]; return `<td>${v ? `<i class="fit ${v}" title="${v === "y" ? "Julie said so" : "Draft, to confirm"}"></i><span class="sr">${v === "y" ? "Confirmed" : "Draft"}</span>` : ""}</td>`; }).join("")}</tr>`).join("")}</tbody>`;
+    const tk = document.getElementById("domTracker");
+    tk.innerHTML = `<thead><tr><th scope="col">Domain</th>${A.STEPS.map((st) => `<th scope="col"><span>${esc(st.label)}</span><small>${esc(firstName(st.who))}</small></th>`).join("")}<th scope="col"><span>Progress</span></th></tr></thead><tbody>${A.DOMAINS.map((d) => `<tr><th scope="row"><i class="dot" style="background:${d.color}"></i>${esc(d.label)}</th>${A.STEPS.map((st) => { const k = d.id + ":" + st.id, v = trk[k] || 0; return `<td><button class="st s${v}" data-k="${k}" aria-label="${esc(d.label)}, ${esc(st.label)}: ${stLabel[v]}" title="${stLabel[v]}" data-testid="trk-${d.id}-${st.id}"></button></td>`; }).join("")}<td class="pc"><div class="bar"><span style="width:${domPct(d)}%;background:${d.color}"></span></div><b>${domPct(d)}%</b></td></tr>`).join("")}</tbody>`;
+  }
+  document.querySelector(".view-domains").addEventListener("click", (e) => {
+    const b = e.target.closest("button.st[data-k]");
+    if (b) { const k = b.dataset.k; trk[k] = ((trk[k] || 0) + 1) % 3; saveTrk(); renderDomains(); const nb = document.querySelector(`button.st[data-k="${k}"]`); if (nb) nb.focus(); return; }
+    if (e.target.id === "trkReset") { trk = {}; saveTrk(); renderDomains(); }
+  });
+  renderDomains();
+
   // ---------- Timeline ----------
   document.getElementById("timeline").innerHTML = A.TIMELINE.map((t) => `<li class="tl ${t.phase}"><span class="pt" aria-hidden="true"></span><div class="d">${esc(t.date)}</div><div class="lb">${esc(t.label)}</div>${t.phase === "now" ? `<span class="nw">Today</span>` : ""}${t.proposed ? `<span class="pr">Proposed</span>` : ""}</li>`).join("");
   const PHASES = [
