@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Play Equity Report Project Map | The Data Guys™</title>
+<meta name="description" content="Interactive project map for the King County Play Equity Coalition Play Equity Report: deliverables, content, data, decisions, hosting and timeline.">
+<link rel="icon" type="image/png" href="assets/tdg-mark.png">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@500,700,800&f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<a class="skip" href="#main" onclick="event.preventDefault();document.getElementById('main').focus();">Skip to content</a>
+<header class="topbar">
+  <div class="brand">
+    <img src="assets/tdg-mark.webp" alt="" width="48" height="36" class="brand-mark">
+    <img src="assets/tdg-wordmark-white.svg" alt="The Data Guys" width="168" height="24" class="brand-word">
+    <span class="brand-div" aria-hidden="true"></span>
+    <div class="brand-title">
+      <h1>Play Equity Report</h1>
+      <p>Project map for KCPEC and the UW team</p>
+    </div>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="Views">
+    <button role="tab" class="tab" aria-selected="true" data-view="map" data-testid="tab-map">Mind map</button>
+    <button role="tab" class="tab" aria-selected="false" data-view="list" data-testid="tab-list">Who owes what</button>
+    <button role="tab" class="tab" aria-selected="false" data-view="time" data-testid="tab-time">Timeline</button>
+    <button role="tab" class="tab" aria-selected="false" data-view="flow" data-testid="tab-flow">How it connects</button>
+  </nav>
+</header>
+
+<main id="main" tabindex="-1">
+  <!-- MAP -->
+  <section class="view view-map is-active" data-view="map" aria-label="Mind map">
+    <div class="stats" id="stats"></div>
+    <div class="map-wrap">
+      <aside class="controls" aria-label="Map controls">
+        <label class="search">
+          <span class="sr">Search the map</span>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="q" type="search" placeholder="Search: codebook, Jack, hosting..." autocomplete="off" data-testid="input-search">
+        </label>
+        <div class="ctl-group">
+          <p class="ctl-label">Status</p>
+          <div class="chips" id="statusChips"></div>
+        </div>
+        <div class="ctl-group">
+          <p class="ctl-label">Person</p>
+          <div class="chips" id="personChips"></div>
+        </div>
+        <div class="ctl-row">
+          <button class="btn" id="expandAll" data-testid="button-expand">Expand all</button>
+          <button class="btn" id="collapseAll" data-testid="button-collapse">Topics only</button>
+          <button class="btn icon" id="fit" aria-label="Fit map to screen" title="Fit to screen" data-testid="button-fit">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+          </button>
+        </div>
+        <p class="hint">Click any node for context. Drag to pan, scroll or pinch to zoom.</p>
+      </aside>
+      <div class="canvas" id="canvas" data-testid="map-canvas">
+        <svg id="mapSvg" role="img" aria-label="Mind map of the Play Equity Report project"></svg>
+      </div>
+      <aside class="drawer" id="drawer" aria-live="polite" aria-label="Details">
+        <div class="drawer-empty" id="drawerEmpty">
+          <p class="eyebrow">Start here</p>
+          <h2>Everything in one place</h2>
+          <p>Ten branches cover the whole project: what we're building, what Dei needs from UW, the data and who owns it, the decisions still open, hosting, timeline and next steps.</p>
+          <p>Colors show status. Gold items are needed from UW. Red items are decisions we make together. Teal items are The Data Guys' to deliver. Gray items are settled.</p>
+          <button class="btn primary" id="startTour" data-testid="button-start">Show what's needed from UW</button>
+        </div>
+        <div class="drawer-body" id="drawerBody" hidden></div>
+      </aside>
+    </div>
+  </section>
+
+  <!-- LIST -->
+  <section class="view view-list" data-view="list" aria-label="Who owes what">
+    <div class="list-head">
+      <div>
+        <p class="eyebrow">Handoff checklist</p>
+        <h2>Who owes what, and when</h2>
+        <p class="lede">Every open item from the map. Dates marked Proposed are for us to confirm together.</p>
+      </div>
+      <div class="chips" id="listPeople"></div>
+    </div>
+    <div class="board" id="board"></div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section class="view view-time" data-view="time" aria-label="Timeline">
+    <div class="list-head">
+      <div>
+        <p class="eyebrow">Timeline</p>
+        <h2>From first call to community launch</h2>
+        <p class="lede">Report release March 2027. Community launch at the end of March or early April.</p>
+      </div>
+    </div>
+    <ol class="timeline" id="timeline"></ol>
+    <div class="phase-cards" id="phaseCards"></div>
+  </section>
+
+  <!-- FLOW -->
+  <section class="view view-flow" data-view="flow" aria-label="How it connects">
+    <div class="list-head">
+      <div>
+        <p class="eyebrow">How it connects</p>
+        <h2>From UW's inputs to what people see</h2>
+        <p class="lede">Hover or tap any piece to trace where it comes from and where it ends up.</p>
+      </div>
+    </div>
+    <div class="flow-wrap"><svg id="flowSvg" role="img" aria-label="Flow from inputs to deliverables"></svg></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>Prepared by The Data Guys™ for the King County Play Equity Coalition and the UW Center for Leadership in Athletics. Updated Nov 17, 2026.</span>
+  <span>Built from our emails (Sep 23 to Nov 13), the Oct 6 call, the Oct 19 concept package and the <a href="https://fathom.video/share/L-xnD8_cHsLjyM-TpUYsMqHWDdXCUkTz" target="_blank" rel="noopener">Nov 13 recording</a>.</span>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
